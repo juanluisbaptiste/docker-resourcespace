@@ -42,5 +42,4 @@ set -e\n \
 RUN chmod a+x /etc/service/apache2/run
 
 EXPOSE 80
-# Use baseimage-docker's init system.
 CMD ["/sbin/my_init"]
