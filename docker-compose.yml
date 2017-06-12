@@ -1,0 +1,41 @@
+resourcespace:
+  build: .
+  ports:
+  - "80:80"
+# If running behind a proxy container, expose the ports instead
+# and link the proxy container to this one.
+#  expose:
+#  - "80"
+  links:
+  - mariadb:mariadb
+  - postfix:postfix
+  volumes_from:
+  - resourcespace-data
+resourcespace-data:
+  image: juanluisbaptiste/resourcespace
+  volumes:
+  - ./volumes/filestore:/var/www/html/filestore
+  - ./volumes/config/config.php:/var/www/html/include/config.php
+  - ./backups:/backups
+  - /etc/localtime:/etc/localtime:ro
+  command: /bin/true
+
+mariadb:
+  image: centos/mariadb:latest
+  expose:
+  - "3306"
+  volumes_from:
+    - mariadb-data
+  environment:
+      MYSQL_ROOT_PASSWORD: changeme
+mariadb-data:
+  image: centos/mariadb:latest
+  volumes:
+  - ./volumes/mysql:/var/lib/mysql
+  - "/etc/localtime:/etc/localtime:ro"
+  command: /bin/true
+postfix:
+   image: juanluisbaptiste/postfix:latest
+   expose:
+   - "25"
+   env_file: ../../credentials-smtp.env
